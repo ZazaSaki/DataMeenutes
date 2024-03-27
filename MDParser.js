@@ -98,7 +98,7 @@ function insertInDictionary(Dict, node){
             CurrentPoint = CurrentPoint[node.title];
 
     //insert the topic
-    CurrentPoint["content"].push({lines : node.content, id : node.id});
+    CurrentPoint["content"].push({lines : node.content, id : node.id, tags : node.tags});
 }
 
 
@@ -179,7 +179,7 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
             if (val != null && key != "content" && typeof Dict == 'object' && val != true) {
                 
                 const copp = [...historic];
-                answer.push({topic : val, parent: copp, name: topic});
+                answer.push({topic : val, parent: copp, name: topic, tags : node.tags});
                 
                 done = true;
                 
@@ -190,7 +190,7 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
 
         if (Dict.hasOwnProperty(topic)) {
             if (historic.length == 0) {
-                answer.push({topic : Dict[topic], parent: [], name: topic});
+                answer.push({topic : Dict[topic], parent: [], name: topic, tags : node.tags});
             }
             return Dict[topic];
         }
@@ -214,6 +214,10 @@ function getTopics(Topic, Tree) {
 
 
 function convertTopicToMD(Topic) {
+    if (typeof Topic != 'object') {
+        return '';
+    }
+    
     let str = `# `;
     
     Topic["parent"].forEach(parent =>{
@@ -234,7 +238,7 @@ function convertTopicToMD(Topic) {
     return str;
 }
 
-///*
+/*
 // Example usage:
 var markdownText = `
 # Introduction #markdown #parser [introduction]
@@ -273,12 +277,37 @@ Here are some examples of Markdown syntax:
     use case sensitive
 `;
 
+markdownText = `# Eq1
+matias, anibla, mafalda
+## proj
+
+nada a relatar
+
+
+# Eq2
+tibursio, josé, matumba
+
+
+## proj 
+um em andamento
+
+### Finance #problem
+necessidade de 300€€
+
+# Eq1
+## porj
+problema com pessoal
+
+## Staff
+	necessidade de encontrar mão de obra
+
+`;
 
 var tree = ExtraceDictionaryFromMDFile(markdownText, {}, "2024-03-26");
 let list = [];
 let out = [];
 const ans = getTopics("Introduction", tree);
-const ansb = getTopics("Lists", tree);
+const ansb = getTopics("Finance", tree);
 
 tree = ExtraceDictionaryFromMDFile(markdownText, tree, "nelson");
 const ansc = getTopics("Usage", tree);
