@@ -273,6 +273,7 @@ Here are some examples of Markdown syntax:
     use case sensitive
 `;
 
+
 var tree = ExtraceDictionaryFromMDFile(markdownText, {}, "2024-03-26");
 let list = [];
 let out = [];
@@ -281,7 +282,7 @@ const ansb = getTopics("Lists", tree);
 
 tree = ExtraceDictionaryFromMDFile(markdownText, tree, "nelson");
 const ansc = getTopics("Usage", tree);
-const str = convertTopicToUsablefile(ans[0]);
+const str = convertTopicToMD(ansb[0]);
 console.log(str)
 console.log();
 //*/
