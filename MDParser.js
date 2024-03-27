@@ -179,7 +179,7 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
             if (val != null && key != "content" && typeof Dict == 'object' && val != true) {
                 
                 const copp = [...historic];
-                answer.push({topic : val, parent: copp, name: topic, tags : node.tags});
+                answer.push({topic : val, parent: copp, name: topic, tags : Dict[key].tags});
                 
                 done = true;
                 
@@ -190,10 +190,48 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
 
         if (Dict.hasOwnProperty(topic)) {
             if (historic.length == 0) {
-                answer.push({topic : Dict[topic], parent: [], name: topic, tags : node.tags});
+                answer.push({topic : Dict[topic], parent: [], name: topic, tags : Dict[topic].tags});
             }
             return Dict[topic];
         }
+    }
+    return done;
+}
+
+
+function getTagToList(tag, Dict, historic = [], answer = []) {
+    historic
+    let done = null;
+    
+    if (typeof Dict == 'object') {
+        
+        
+        for (const key in Dict) {
+            historic.push(key);
+            const val = getTagToList(tag,Dict[key],historic,answer);
+            if (val != null && key != "content" && typeof Dict == 'object' && val != true) {
+                
+                const copp = [...historic];
+                answer.push({topic : val, parent: copp, name: tag, tags : Dict[key].tags});
+                
+                done = true;
+                
+            }
+            historic.pop();
+            
+        }
+
+        if ("content" in Dict) {
+            const found = {content : Dict.content.filter(x => (x.tags.includes(tag)))};
+            
+            if (found.content.length > 0) {
+                if (historic.length == 0) {
+                    answer.push({topic : found, parent: [], name: tag, tags : ""});
+                }
+                return found;
+            }
+        }
+            
     }
     return done;
 }
@@ -209,6 +247,19 @@ function getTopics(Topic, Tree) {
     let out = [];
     let list = []
     const ans = getTopicToList(Topic, Tree, list, out);
+    return [...out];
+}
+
+// get the list of objects of a given topic
+// topic : string, topic to search
+// Dict : {}, Data structure
+// historic:[], list of parents
+// 
+// return :[{ {Object}, [Parents of the object] }]
+function getTags(Topic, Tree) {
+    let out = [];
+    let list = []
+    const ans = getTagToList(Topic, Tree, list, out);
     return [...out];
 }
 
@@ -295,7 +346,7 @@ um em andamento
 necessidade de 300€€
 
 # Eq1
-## porj
+## porj #problem
 problema com pessoal
 
 ## Staff
@@ -310,8 +361,14 @@ const ans = getTopics("Introduction", tree);
 const ansb = getTopics("Finance", tree);
 
 tree = ExtraceDictionaryFromMDFile(markdownText, tree, "nelson");
-const ansc = getTopics("Usage", tree);
-const str = convertTopicToMD(ansb[0]);
-console.log(str)
+const ansc = getTopics("Eq1", tree);
+
+const ansd = getTags("problem", tree);
+const str = convertTopicToMD(ansd[0]);
+
+ansd.forEach(element => {
+    console.log(convertTopicToMD(element));
+});
+
 console.log();
 //*/
