@@ -191,8 +191,12 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
         if (Dict.hasOwnProperty(topic)) {
 
             let tags = [];
-            Dict[topic].content.map(x => (x.tags)).forEach(x=>{
-                tags.push(x);
+            Dict[topic].content.map(x => (x.tags)).forEach(tagList=>{
+                tagList.forEach(tag => {
+                    if (!tags.includes(tag)) {
+                        tags.push(tag);
+                    } 
+                }); 
             });
             Dict[topic]['tags']= tags;
 
@@ -231,13 +235,18 @@ function getTagToList(tag, Dict, historic = [], answer = []) {
         if ("content" in Dict) {
             const found = {content : Dict.content.filter(x => (x.tags.includes(tag)))};
             let tags = [];
-            found.content.map(x => (x.tags)).forEach(x=>{
-                tags.push(x);
+            found.content.map(x => (x.tags)).forEach(tagList=>{
+                tagList.forEach(tag => {
+                    if (!tags.includes(tag)) {
+                        tags.push(tag);
+                    } 
+                }); 
             });
             if (found.content.length > 0) {
                 if (historic.length == 0) {
                     answer.push({topic : found, parent: [], name: tag, tags : tags});
                 }
+                found["tags"] = tags;
                 return found;
             }
         }
@@ -273,6 +282,51 @@ function getTags(Topic, Tree) {
     return [...out];
 }
 
+function OrganizeInChronologicOrder(Topics) {
+    let out = [];
+    Topics.map(Topic => {
+        Topic.topic.content.map(element => {
+            out.push({
+                content : element.lines, 
+                parent : Topic.parent, 
+                tags : element.tags, 
+                id : element.id, 
+                name: Topic.name 
+            });
+        });
+    });
+
+    out.sort((a,b)=>a.id-b.id);
+
+    return out;
+}
+
+function convertOrganizedTopicToMD(Topics) {
+    let str = ``;
+    Topics.forEach(Topic => {
+
+        str = `${str}# `;
+        
+        Topic["parent"].forEach(parent =>{
+            str = `${str}${parent}/`
+        });
+
+        str = `${str}${Topic.name}\n`;
+
+        str = `${str}## ${Topic.id}\n`
+
+        Topic.tags.forEach(tag => {
+            str = `${str}${tag}-`;
+        });
+        
+        str += '\n';
+        Topic.content.forEach(line => {
+            str = `${str}${line}\n`
+        });
+        
+    });
+    return str;
+}
 
 function convertTopicToMD(Topic) {
     if (typeof Topic != 'object') {
@@ -386,9 +440,14 @@ const ansc = getTopics("Jovens Adultos", tree);
 const ansd = getTags("act", tree);
 const str = convertTopicToMD(ansd[0]);
 
-ansd.forEach(element => {
-    console.log(convertTopicToMD(element));
-});
+const orgc = OrganizeInChronologicOrder(ansd);
+
+const strOrgC = convertOrganizedTopicToMD(orgc)
+console.log(strOrgC);
+
+// ansc.forEach(element => {
+//     console.log(convertTopicToMD(element));
+// });
 
 console.log();
 //*/
