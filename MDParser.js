@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const MarkdownParser = /** @class */ (function () {
     function MarkdownParser() {
     }
-    MarkdownParser.prototype.parseMarkdown = function (markdownText) {
+    MarkdownParser.prototype.parseMarkdown = function (markdownText, id = "") {
         var lines = markdownText.split('\n');
         var headings = [];
         var parentStack = [];
@@ -24,7 +24,7 @@ const MarkdownParser = /** @class */ (function () {
                         titleWithTags = titleWithTags.replace(tagMatch, '').trim();
                     }
                 }
-                var heading = { level: level, title: titleWithTags, content: content, tags: tags, children: [] };
+                var heading = { level: level, title: titleWithTags, content: content, tags: tags, children: [], id : id};
                 while (parentStack.length > 0 && level <= parentStack[parentStack.length - 1].level) {
                     parentStack.pop();
                 }
@@ -98,7 +98,7 @@ function insertInDictionary(Dict, node){
             CurrentPoint = CurrentPoint[node.title];
 
     //insert the topic
-    CurrentPoint["content"].push(node.content);
+    CurrentPoint["content"].push({lines : node.content, id : node.id});
 }
 
 
@@ -114,15 +114,17 @@ function insertTreeInDictionary(Dict,Tree) {
 
 
 //MDParser convert MDFile -> Dictionary
-function ExtraceDictionaryFromMDFile(markdownText, Historic={}) {
+function ExtraceDictionaryFromMDFile(markdownText, Historic={}, id = "") {
     const parser = new MarkdownParser();
-    const headingStructure = parser.parseMarkdown(markdownText);
+    const headingStructure = parser.parseMarkdown(markdownText, id);
 
     let Dict = Historic;
 
     headingStructure.forEach(head => {
         insertTreeInDictionary(Dict,head);
     });
+
+    Dict["id"] = id;
 
     return Dict;
 }
@@ -177,7 +179,7 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
             if (val != null && key != "content" && typeof Dict == 'object' && val != true) {
                 
                 const copp = [...historic];
-                answer.push({topic : val, parent: copp});
+                answer.push({topic : val, parent: copp, name: topic});
                 
                 done = true;
                 
@@ -187,7 +189,9 @@ function getTopicToList(topic, Dict, historic = [], answer = []) {
         }
 
         if (Dict.hasOwnProperty(topic)) {
-            
+            if (historic.length == 0) {
+                answer.push({topic : Dict[topic], parent: [], name: topic});
+            }
             return Dict[topic];
         }
     }
@@ -208,51 +212,76 @@ function getTopics(Topic, Tree) {
     return [...out];
 }
 
-// // Example usage:
-// var markdownText = `
-// # Introduction #markdown #parser [introduction]
 
-// This is an introduction to Markdown parsing.
+function convertTopicToMD(Topic) {
+    let str = `# `;
+    
+    Topic["parent"].forEach(parent =>{
+        str = `${str}${parent}/`
+    });
 
-// ## About Markdown [about]
+    str = `${str}${Topic.name}\n`;
 
-// Markdown is a lightweight markup language.
+    
+    Topic["topic"]["content"].forEach(content =>{
+        str = `${str}## ${content.id}\n`
 
-// ### History [history]
+        content.lines.forEach(line => {
+            str = `${str}${line}\n`
+        });
+    });
 
-// It was created by John Gruber.
+    return str;
+}
 
-// #### Usage
+///*
+// Example usage:
+var markdownText = `
+# Introduction #markdown #parser [introduction]
 
-// ## Usage [usage]
+This is an introduction to Markdown parsing.
 
-// Markdown is commonly used for writing documentation.
+## About Markdown [about]
 
-// # Examples [examples]
+Markdown is a lightweight markup language.
 
-// Here are some examples of Markdown syntax:
+### History [history]
 
-// ## Lists [lists]
+It was created by John Gruber.
 
-// - Item 1
-// - Item 2
+#### Usage
 
-// # Introduction
-//     More text here
+## Usage [usage]
 
-// ## Other topic
-//     More on the topic
-// ### Usage
-//     use case sensitive
-// `;
+Markdown is commonly used for writing documentation.
 
-// var tree = ExtraceDictionaryFromMDFile(markdownText);
-// let list = [];
-// let out = [];
-// const ans = getTopics("Usage", tree);
-// const ansb = getTopics("Lists", tree);
+# Examples [examples]
 
-// tree = ExtraceDictionaryFromMDFile(markdownText, tree);
+Here are some examples of Markdown syntax:
 
-// console.log();
+## Lists [lists]
 
+- Item 1
+- Item 2
+
+# Introduction
+    More text here
+
+## Other topic
+    More on the topic
+### Usage
+    use case sensitive
+`;
+
+var tree = ExtraceDictionaryFromMDFile(markdownText, {}, "2024-03-26");
+let list = [];
+let out = [];
+const ans = getTopics("Introduction", tree);
+const ansb = getTopics("Lists", tree);
+
+tree = ExtraceDictionaryFromMDFile(markdownText, tree, "nelson");
+const ansc = getTopics("Usage", tree);
+const str = convertTopicToUsablefile(ans[0]);
+console.log(str)
+console.log();
+//*/
