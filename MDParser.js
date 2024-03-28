@@ -295,8 +295,8 @@ function OrganizeInChronologicOrder(Topics) {
             });
         });
     });
-
-    out.sort((a,b)=>a.id-b.id);
+    
+    out = out.sort((a,b)=>new Date(b.id)-new Date(a.id));
 
     return out;
 }
@@ -430,6 +430,7 @@ markdownText = fs.readFileSync('./subject.md',{encoding:'utf-8'});
 
 
 var tree = ExtraceDictionaryFromMDFile(markdownText, {}, "2024-03-26");
+var tree = ExtraceDictionaryFromMDFile(markdownText, tree, "2024-03-02");
 let list = [];
 let out = [];
 const ans = getTopics("Castelo Branco", tree);
