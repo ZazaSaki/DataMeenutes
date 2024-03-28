@@ -257,9 +257,9 @@ function getTagToList(tag, Dict, historic = [], answer = []) {
 
 
 // get the list of objects of a given topic
+// Topics are MD headers
 // topic : string, topic to search
 // Dict : {}, Data structure
-// historic:[], list of parents
 // 
 // return :[{ {Object}, [Parents of the object] }]
 function getTopics(Topic, Tree) {
@@ -269,10 +269,22 @@ function getTopics(Topic, Tree) {
     return [...out];
 }
 
-// get the list of objects of a given topic
+
+// get the list of contents(objects) of a given topic organised by id
+// Topics are MD headers
 // topic : string, topic to search
 // Dict : {}, Data structure
 // historic:[], list of parents
+// 
+// return :[{Object}]
+function getOrganizedTopics(Topics,Tree){
+    return OrganizeInChronologicOrder(getTopics(Topics,Tree));
+}
+
+// get the list of objects of a given tag
+// tags are taken per header
+// topic : string, topic to search
+// Dict : {}, Data structure
 // 
 // return :[{ {Object}, [Parents of the object] }]
 function getTags(Topic, Tree) {
@@ -280,6 +292,16 @@ function getTags(Topic, Tree) {
     let list = []
     const ans = getTagToList(Topic, Tree, list, out);
     return [...out];
+}
+
+// get the list of contents(objects) of a given tag organised by id
+// tags are taken per header
+// tag : string, topic to search
+// Dict : {}, Data structure
+// 
+// return :[{Object}]
+function getOrganizedTags(Topics,Tree){
+    return OrganizeInChronologicOrder(getTags(Topics,Tree));
 }
 
 function OrganizeInChronologicOrder(Topics) {
@@ -296,8 +318,9 @@ function OrganizeInChronologicOrder(Topics) {
         });
     });
     
+    
+    out = out.sort((a,b)=>new Date(a.parent.length)-new Date(b.parent.length));
     out = out.sort((a,b)=>new Date(b.id)-new Date(a.id));
-
     return out;
 }
 
@@ -316,7 +339,7 @@ function convertOrganizedTopicToMD(Topics) {
         str = `${str}## ${Topic.id}\n`
 
         Topic.tags.forEach(tag => {
-            str = `${str}${tag}-`;
+            str = `${str}#${tag} `;
         });
         
         str += '\n';
@@ -345,7 +368,7 @@ function convertTopicToMD(Topic) {
     Topic["topic"]["content"].forEach(content =>{
         str = `${str}## ${content.id}\n`
         content.tags.forEach(tag => {
-            str = `${str}${tag}-`;
+            str = `${str}#${tag} `;
         });
             str += '\n';
         content.lines.forEach(line => {
@@ -436,14 +459,14 @@ let out = [];
 const ans = getTopics("Castelo Branco", tree);
 const ansb = getTopics("Quorum", tree);
 
-const ansc = getTopics("Jovens Adultos", tree);
+const ansc = getOrganizedTopics("Jovens Adultos", tree);
 
 const ansd = getTags("act", tree);
 const str = convertTopicToMD(ansd[0]);
 
-const orgc = OrganizeInChronologicOrder(ansd);
+const orgc = getOrganizedTags("EJAS", tree);
 
-const strOrgC = convertOrganizedTopicToMD(orgc)
+const strOrgC = convertOrganizedTopicToMD(ansc)
 console.log(strOrgC);
 
 // ansc.forEach(element => {
