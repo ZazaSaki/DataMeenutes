@@ -2,8 +2,11 @@ import { readMDFile } from "./FileReader";
 
 const reservedWords: string[] = ['tags', 'content'];
 export class MarkdownParser {
-    
+    Tree : any;
 
+    constructor(){
+        this.Tree = {}
+    }
     parseMarkdown(markdownText: string, id: string = ""): Heading[] {
         const lines = markdownText.split('\n');
         const headings: Heading[] = [];
@@ -102,10 +105,20 @@ export class MarkdownParser {
         return Dict;
     }
 
+    AppendToExistingTree(markdownText: string, id: string = ""){
+        this.Tree = this.extractDictionaryFromMDFile(markdownText, this.Tree, id);
+    }
+
     extractDictionaryFromMDFilePath(path: string, Historic: any = {}, id: string = "") {
         const content = readMDFile(path);
 
+        console.log(content);
+
         return this.extractDictionaryFromMDFile(content, Historic, id);
+    }
+
+    AppendToExistingTreeFromPath(path: string, id: string = ""){
+        this.Tree = this.extractDictionaryFromMDFilePath(path, this.Tree, id);
     }
 
     getTopicFirstAppearance(topic: string, Dict: any, historic: string[] = []) {
@@ -233,8 +246,12 @@ export class MarkdownParser {
         return [...out];
     }
 
-    getOrganizedTopics(Topics: string, Tree: any, full : boolean = false) {
+    getOrganizedTopicsFromTree(Topics: string, Tree: any, full : boolean = false) {
         return this.organizeInChronologicOrder(this.getTopics(Topics, Tree, full));
+    }
+
+    getOrganizedTopics(Topics: string, full : boolean = false) {
+        return this.organizeInChronologicOrder(this.getTopics(Topics, this.Tree, full));
     }
 
     getTags(Topic: string, Tree: any) {
