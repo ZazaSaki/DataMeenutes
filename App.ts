@@ -1,7 +1,7 @@
 import { readMDFile } from "./FileReader";
 
 const reservedWords: string[] = ['tags', 'content'];
-class MarkdownParser {
+export class MarkdownParser {
     
 
     parseMarkdown(markdownText: string, id: string = ""): Heading[] {
@@ -333,8 +333,6 @@ interface Heading {
     parent?: Heading | null;
     id: string;
 }
-
-
 
 /*
 // Example usage:
