@@ -102,6 +102,12 @@ export class MarkdownParser {
         return Dict;
     }
 
+    extractDictionaryFromMDFilePath(path: string, Historic: any = {}, id: string = "") {
+        const content = readMDFile(path);
+
+        return this.extractDictionaryFromMDFile(content, Historic, id);
+    }
+
     getTopicFirstAppearance(topic: string, Dict: any, historic: string[] = []) {
         if (typeof Dict == 'object') {
             if (Dict.hasOwnProperty(topic)) {
