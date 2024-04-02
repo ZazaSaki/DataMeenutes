@@ -5,8 +5,17 @@ export class MarkdownParser {
     Tree : any;
 
     constructor(){
-        this.Tree = {}
+        this.Tree = {};
     }
+
+    resetTree(){
+        this.Tree = {};
+    }
+
+    getTree(){
+        return this.Tree.valueOf();
+    }
+
     parseMarkdown(markdownText: string, id: string = ""): Heading[] {
         const lines = markdownText.split('\n');
         const headings: Heading[] = [];
