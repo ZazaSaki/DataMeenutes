@@ -261,8 +261,12 @@ export class MarkdownParser {
         return [...out];
     }
 
-    getOrganizedTags(Topics: string, Tree: any) {
+    getOrganizedTagsFromTree(Topics: string, Tree: any) {
         return this.organizeInChronologicOrder(this.getTags(Topics, Tree));
+    }
+
+    getOrganizedTags(Topics: string) {
+        return this.organizeInChronologicOrder(this.getTags(Topics, this.Tree));
     }
 
     organizeInChronologicOrder(Topics: any[]): any[] {
