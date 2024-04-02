@@ -335,7 +335,8 @@ interface Heading {
 }
 
 
-///*
+
+/*
 // Example usage:
 const parser = new MarkdownParser();
 
