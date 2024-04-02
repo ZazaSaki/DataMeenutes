@@ -1,0 +1,9 @@
+{
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^20.12.2"
+  },
+  "dependencies": {
+    "tsc": "^2.0.4"
+  }
+}

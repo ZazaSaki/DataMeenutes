@@ -1,3 +1,5 @@
+import { readMDFile } from "./FileReader";
+
 const reservedWords: string[] = ['tags', 'content'];
 class MarkdownParser {
     
@@ -333,11 +335,11 @@ interface Heading {
 }
 
 
-/*
+///*
 // Example usage:
 const parser = new MarkdownParser();
 
-const markdownText = `
+let markdownText = `
 # Introduction #markdown #parser [introduction]
 
 This is an introduction to Markdown parsing.
@@ -374,9 +376,14 @@ Here are some examples of Markdown syntax:
     use case sensitive
 `;
 
+markdownText = readMDFile('./subject.md');
+
+
 const headingStructure = parser.extractDictionaryFromMDFile(markdownText, {}, "2024-03-26");
 const headingStructure2 = parser.extractDictionaryFromMDFile(markdownText, headingStructure, "2024-03-30");
 const tttt = parser.getOrganizedTopics("Aveiro", headingStructure, true);
 console.log(parser.convertOrganizedTopicToMD(tttt));
+//import {readMDFileYeaa}from './FileRader.js';
+
 console.log()
 //*/
