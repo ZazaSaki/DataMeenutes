@@ -1,6 +1,6 @@
 import { readMDFile } from "./FileReader";
 
-const reservedWords: string[] = ['tags', 'content'];
+const reservedWords: string[] = ['tags', 'content', 'id'];
 export class MarkdownParser {
     Tree : any;
 
@@ -116,6 +116,27 @@ export class MarkdownParser {
 
     AppendToExistingTree(markdownText: string, id: string = ""){
         this.Tree = this.extractDictionaryFromMDFile(markdownText, this.Tree, id);
+    }
+
+    GenerateTopicTree(){
+        return this.GenerateTopicTreeFrom(this.Tree);
+    }
+
+    GenerateTopicTreeFrom(Tree : any){
+        console.log()
+
+        const keys = Object.keys(Tree);
+
+        const filtered = keys.filter((value)=>!(reservedWords.includes(value)));
+
+        let children = {};
+
+        filtered.forEach(element => {
+             
+            children[element] = this.GenerateTopicTreeFrom(Tree[element]);
+        });
+
+        return children;
     }
 
     extractDictionaryFromMDFilePath(path: string, Historic: any = {}, id: string = "") {
@@ -416,7 +437,9 @@ markdownText = readMDFile('./subject.md');
 
 const headingStructure = parser.extractDictionaryFromMDFile(markdownText, {}, "2024-03-26");
 const headingStructure2 = parser.extractDictionaryFromMDFile(markdownText, headingStructure, "2024-03-30");
-const tttt = parser.getOrganizedTopics("Aveiro", headingStructure, true);
+const tttt = parser.getOrganizedTopics("Aveiro", true);
+parser.AppendToExistingTreeFromPath('./subject.md');
+const rrr = parser.GenerateTopicTree();
 console.log(parser.convertOrganizedTopicToMD(tttt));
 //import {readMDFileYeaa}from './FileRader.js';
 
