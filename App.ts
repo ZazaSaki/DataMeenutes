@@ -118,22 +118,31 @@ export class MarkdownParser {
         this.Tree = this.extractDictionaryFromMDFile(markdownText, this.Tree, id);
     }
 
-    GenerateTopicTree(){
-        return this.GenerateTopicTreeFrom(this.Tree);
+    GenerateTopicTree(preset : boolean = true, toogle :Function = ()=>(null)){
+        return {
+            name : 'Topic Tree',
+            children : this.GenerateTopicTreeFrom(this.Tree,preset,toogle),
+            isOpen : preset,
+            toggleFolder: toogle
+        };
     }
 
-    GenerateTopicTreeFrom(Tree : any){
+    GenerateTopicTreeFrom(Tree : any, preset : boolean = true, toogle :Function = ()=>(null)){
         console.log()
 
         const keys = Object.keys(Tree);
 
         const filtered = keys.filter((value)=>!(reservedWords.includes(value)));
 
-        let children = {};
+        const children = [];
 
         filtered.forEach(element => {
-             
-            children[element] = this.GenerateTopicTreeFrom(Tree[element]);
+            children.push({
+                name : element,
+                children : this.GenerateTopicTreeFrom(Tree[element]),
+                isOpen : preset,
+				toggleFolder: toogle
+            });
         });
 
         return children;
