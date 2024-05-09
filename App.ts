@@ -122,7 +122,7 @@ export class MarkdownParser {
         return {
             name : 'Topic Tree',
             children : this.GenerateTopicTreeFrom(this.Tree,preset,toogle),
-            isOpen : preset,
+            isOpen :  true,
             toggleFolder: toogle
         };
     }
